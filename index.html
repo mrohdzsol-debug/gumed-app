@@ -90,7 +90,8 @@
   function leer() { try { return JSON.parse(localStorage.getItem(CLAVE)); } catch (e) { return null; } }
   function guardar(j) { try { localStorage.setItem(CLAVE, JSON.stringify({ v: j.v, html: j.html, el: Date.now() })); } catch (e) {} }
   function pintar(html) {
-    var h = /<head[^>]*>/i.test(html) ? html.replace(/<head[^>]*>/i, function (m) { return m + EXTRA; }) : EXTRA + html;
+    var extra = /<title[\s>]/i.test(html) ? EXTRA : "<title>Sistema GUMED</title>" + EXTRA;
+    var h = /<head[^>]*>/i.test(html) ? html.replace(/<head[^>]*>/i, function (m) { return m + extra; }) : extra + html;
     document.open(); document.write(h); document.close();
   }
   function avisoNueva() {
