@@ -83,6 +83,7 @@
     });
   }
 
+  var pintado = false, nuevaPendiente = false;
   var EXTRA = '<link rel="manifest" href="manifest.webmanifest"><link rel="icon" href="icono-192.png"><link rel="apple-touch-icon" href="icono-192.png">' +
     '<meta name="theme-color" content="#1F4E79"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="GUMED">' +
     "<script>(" + puente.toString() + ")(" + JSON.stringify(API) + ");<\/script>";
@@ -92,7 +93,12 @@
   function pintar(html) {
     var extra = /<title[\s>]/i.test(html) ? EXTRA : "<title>Sistema GUMED</title>" + EXTRA;
     var h = /<head[^>]*>/i.test(html) ? html.replace(/<head[^>]*>/i, function (m) { return m + extra; }) : extra + html;
+    /* Mientras esta página todavía se está leyendo, document.open() no hace nada y el sistema se escribía DENTRO de la
+       pantalla de "Cargando" (centrado y angosto en la computadora). Por eso se espera a que termine de leerse. */
+    if (document.readyState === "loading") { document.addEventListener("DOMContentLoaded", function () { pintar(html); }, { once: true }); return; }
     document.open(); document.write(h); document.close();
+    pintado = true;
+    if (nuevaPendiente) { nuevaPendiente = false; avisoNueva(); }
   }
   function avisoNueva() {
     if (document.getElementById("gumed-nueva")) return;
@@ -117,7 +123,7 @@
     .then(function (r) { return r.json(); });
 
   if (c && c.html) {
-    pide.then(function (j) { if (j && j.html && j.v !== c.v) { guardar(j); avisoNueva(); } }).catch(function () {});
+    pide.then(function (j) { if (j && j.html && j.v !== c.v) { guardar(j); if (pintado) avisoNueva(); else nuevaPendiente = true; } }).catch(function () {});
     pintar(c.html);
   } else {
     pide.then(function (j) {
