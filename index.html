@@ -81,6 +81,34 @@
       });
       (document.body || document.documentElement).appendChild(d);
     });
+    /* iPhone y iPad: Safari no avisa que se puede instalar; se explica cómo (Compartir → Agregar a pantalla de inicio). */
+    var ua = navigator.userAgent || "";
+    var ios = /iPad|iPhone|iPod/.test(ua) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+    var yaApp = navigator.standalone === true || (window.matchMedia && window.matchMedia("(display-mode: standalone)").matches);
+    if (ios && !yaApp) {
+      var avisoIOS = function () {
+        var hasta = 0; try { hasta = Number(localStorage.getItem("gumed-app-instalar-no") || 0); } catch (e) {}
+        if (Date.now() < hasta || document.getElementById("gumed-instalar")) return;
+        var chrome = /CriOS/.test(ua), otro = /FxiOS|EdgiOS|OPT\//.test(ua);
+        var texto = otro ? "Para instalar GUMED en este iPhone, abre esta misma liga en <b>Safari</b> y toca Compartir → «Agregar a pantalla de inicio»."
+          : chrome ? "Instala GUMED en este iPhone: toca <b>Compartir</b> (arriba a la derecha) y luego <b>«Agregar a pantalla de inicio»</b>. Si no aparece, abre esta liga en Safari."
+          : "Instala GUMED en este iPhone: toca <b>Compartir</b> (el cuadro con la flecha, abajo) y luego <b>«Agregar a pantalla de inicio»</b>.";
+        var d = document.createElement("div");
+        d.id = "gumed-instalar";
+        d.style.cssText = "position:fixed;left:12px;right:12px;bottom:12px;z-index:99998;background:#1F4E79;color:#fff;border-radius:12px;padding:12px 14px;" +
+          "display:flex;gap:8px;align-items:center;flex-wrap:wrap;font:15px system-ui,sans-serif;box-shadow:0 4px 16px rgba(0,0,0,.25);line-height:1.35";
+        d.innerHTML = '<span style="flex:1 1 220px">' + texto + '</span>' +
+          '<button type="button" data-i="no" style="background:transparent;color:#fff;border:1px solid rgba(255,255,255,.6);border-radius:8px;padding:8px 10px;font-size:15px">Entendido</button>';
+        d.addEventListener("click", function (e) {
+          var b = e.target.closest ? e.target.closest("[data-i]") : null; if (!b) return;
+          try { localStorage.setItem("gumed-app-instalar-no", String(Date.now() + 7 * 864e5)); } catch (x) {}
+          d.remove();
+        });
+        (document.body || document.documentElement).appendChild(d);
+      };
+      if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", function () { setTimeout(avisoIOS, 1200); });
+      else setTimeout(avisoIOS, 1200);
+    }
   }
 
   var pintado = false, nuevaPendiente = false;

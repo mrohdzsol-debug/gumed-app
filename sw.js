@@ -1,7 +1,7 @@
 /* App GUMED: guarda la "cáscara" (esta página, íconos y manifiesto) para que abra al instante y sin señal.
-   v2 (30 oct 2026): primero contesta con lo guardado en el teléfono y actualiza por detrás (antes esperaba a internet).
+   v3 (30 oct 2026, aviso de instalación en iPhone). v2: primero contesta con lo guardado en el teléfono y actualiza por detrás (antes esperaba a internet).
    El sistema en sí se baja del Apps Script y se guarda en el teléfono (ver index.html). */
-var CACHE = "gumed-app-v2";
+var CACHE = "gumed-app-v3";
 var ARCHIVOS = ["./", "index.html", "manifest.webmanifest", "icono-192.png", "icono-512.png", "sw.js"];
 
 self.addEventListener("install", function (e) {
